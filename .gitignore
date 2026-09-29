@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.venv/
+.build/
+build/
+dist/
+PoseRuntime/
+outputs/
+*.task
+*.spec
+.env
+.env.*
