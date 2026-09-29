@@ -16,8 +16,6 @@
 ```text
 3dsmax_pose_tool/   Max 界面、HTTP 客户端和 Biped 求解
 pose_server/       独立 HTTP 服务、MediaPipe 推理和关节协议
-tests/             数学、协议、骨架、Qt 流程和模拟回滚测试
-tools/             服务运行包构建及压缩脚本
 ```
 
 仓库仅包含源码，不包含模型权重、预编译运行包、场景文件、参考图片或用户缓存。Max 客户端不需要安装 MediaPipe；推理由独立服务完成。
@@ -66,24 +64,6 @@ tool.show_pose_window()
 
 自动肘膝稳定会修正弯曲平面，Biped 方向可能与原始预览 Bone 略有差别，结果中的 `projection_degrees` 记录该差异。不提供手动肘平面参数、单指写入、旧左手入口或从场景骨架重新应用接口。
 
-## 构建独立服务
-
-```powershell
-python -m pip install pyinstaller
-powershell -ExecutionPolicy Bypass -File tools/build_pose_server.ps1 -Python C:\Python311\python.exe -ModelDirectory C:\Models\MediaPipe
-python tools/package_pose_runtime.py
-```
-
-将完整的 `dist/jade_pose_server` 目录部署为仓库根目录的 `PoseRuntime`，或通过 `POSE_SERVER_EXE` 指定可执行文件。没有本地服务时，Max 客户端会尝试启动该运行包。也可运行 `start_pose_server.bat` 启动开发构建。
-
-## 测试
-
-在仓库根目录执行：
-
-```powershell
-python -m unittest discover -s tests -p "test_*.py"
-```
-
-Qt 流程测试在安装 PySide2/PySide6 时运行，否则跳过。事务测试使用模拟 Max API，不等同于真实 Max 场景验收。
+本仓库仅保留运行源码、依赖清单及使用说明，不包含测试、诊断、构建或打包脚本。按上述命令启动 Python 推理服务即可使用；模型文件仍需另行获取。
 
 服务保留历史协议标识 `maya_pose_skeleton`、`maya_hand_skeleton`，仅用于与已部署客户端和服务兼容，不代表包含 Maya 工具或依赖 Maya。

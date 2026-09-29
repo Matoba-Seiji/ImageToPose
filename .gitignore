@@ -10,3 +10,6 @@ outputs/
 *.spec
 .env
 .env.*
+tests/
+tools/
+maya_pose_tool/
