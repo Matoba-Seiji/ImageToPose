@@ -1,4 +1,4 @@
-"""Entry point for the bundled, Maya-independent pose server."""
+"""Entry point for the standalone Max pose inference server."""
 
 from __future__ import annotations
 

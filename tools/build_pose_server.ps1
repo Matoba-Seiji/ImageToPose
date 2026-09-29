@@ -10,7 +10,7 @@ $projectRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $outputDirectory = Join-Path $projectRoot "dist\jade_pose_server"
 
 if (-not $ModelDirectory) {
-    $localModels = Join-Path $projectRoot "maya_pose_tool\models"
+    $localModels = Join-Path $projectRoot "pose_server\models"
     $userModels = Join-Path $env:USERPROFILE ".mediapipe\models"
     $ModelDirectory = if (Test-Path (Join-Path $localModels "hand_landmarker.task")) {
         $localModels

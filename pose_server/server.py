@@ -1,7 +1,6 @@
 """Small HTTP server for single-image MediaPipe pose inference.
 
-The service returns DCC-neutral joint positions. Maya and 3ds Max clients
-convert that protocol into their own local skeleton APIs. The standard library
+The service returns joint positions for the 3ds Max client. The standard library
 HTTP server keeps local deployment and cloud deployment identical.
 """
 
@@ -17,31 +16,29 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 try:
-    from maya_pose_tool.mediapipe_pose import (
+    from pose_server.mediapipe_pose import (
         PoseLandmarkerError,
         find_hand_model_path,
         find_model_path,
         infer_single_image,
     )
-    from maya_pose_tool.mediapipe_hand_pose import infer_single_hand_image
-    from maya_pose_tool.pose_skeleton import (
+    from pose_server.mediapipe_hand_pose import infer_single_hand_image, HAND_JOINT_NAMES as HAND_JOINTS, HAND_PARENTS
+    from pose_server.protocol import (
         BODY_AND_FINGER_JOINTS,
         BODY_PARENTS,
     )
-    from maya_pose_tool.hand_skeleton import HAND_JOINTS, HAND_PARENTS
 except ImportError:
-    from ..maya_pose_tool.mediapipe_pose import (  # pragma: no cover
+    from .mediapipe_pose import (  # pragma: no cover
         PoseLandmarkerError,
         find_hand_model_path,
         find_model_path,
         infer_single_image,
     )
-    from ..maya_pose_tool.mediapipe_hand_pose import infer_single_hand_image  # pragma: no cover
-    from ..maya_pose_tool.pose_skeleton import (  # pragma: no cover
+    from .mediapipe_hand_pose import infer_single_hand_image, HAND_JOINT_NAMES as HAND_JOINTS, HAND_PARENTS  # pragma: no cover
+    from .protocol import (  # pragma: no cover
         BODY_AND_FINGER_JOINTS,
         BODY_PARENTS,
     )
-    from ..maya_pose_tool.hand_skeleton import HAND_JOINTS, HAND_PARENTS  # pragma: no cover
 
 
 MAX_UPLOAD_BYTES = 20 * 1024 * 1024

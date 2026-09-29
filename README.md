@@ -1,6 +1,6 @@
 # ImageToPose
 
-基于 MediaPipe 的单图姿态工具，支持 3ds Max Biped 重定向和 Maya 普通关节生成。
+基于 MediaPipe 的 3ds Max 单图姿态工具，支持 Biped 全身及手部重定向。
 
 ## 功能
 
@@ -10,14 +10,12 @@
 - 服务返回可靠面部三维点时估计头部朝向；缺少数据时保留原相对旋转。
 - 独立手部支持左右手目标及输入手性转换，写入五指，不生成独立手部 Bone。
 - 单次写入使用 Undo 事务，失败回滚，并提供最近一次写入的恢复。
-- Maya：全身加手指、独立手部图片生成普通 joint hierarchy。
 
 ## 目录
 
 ```text
 3dsmax_pose_tool/   Max 界面、HTTP 客户端和 Biped 求解
-maya_pose_tool/     MediaPipe 推理、Maya 界面和关节生成
-pose_server/       独立 HTTP 推理服务
+pose_server/       独立 HTTP 服务、MediaPipe 推理和关节协议
 tests/             数学、协议、骨架、Qt 流程和模拟回滚测试
 tools/             服务运行包构建及压缩脚本
 ```
@@ -68,21 +66,6 @@ tool.show_pose_window()
 
 自动肘膝稳定会修正弯曲平面，Biped 方向可能与原始预览 Bone 略有差别，结果中的 `projection_degrees` 记录该差异。不提供手动肘平面参数、单指写入、旧左手入口或从场景骨架重新应用接口。
 
-## 在 Maya 中打开
-
-Maya 模式在 Maya Python 环境内执行推理，需要为对应 `mayapy` 安装兼容的 MediaPipe、OpenCV、NumPy，并配置模型路径。
-
-```python
-import importlib
-import sys
-
-root = r"C:\Tools\ImageToPose"
-if root not in sys.path:
-    sys.path.insert(0, root)
-tool = importlib.import_module("maya_pose_tool.mediapipe_image_to_skeleton")
-tool.show_mediapipe_pose_window()
-```
-
 ## 构建独立服务
 
 ```powershell
@@ -102,3 +85,5 @@ python -m unittest discover -s tests -p "test_*.py"
 ```
 
 Qt 流程测试在安装 PySide2/PySide6 时运行，否则跳过。事务测试使用模拟 Max API，不等同于真实 Max 场景验收。
+
+服务保留历史协议标识 `maya_pose_skeleton`、`maya_hand_skeleton`，仅用于与已部署客户端和服务兼容，不代表包含 Maya 工具或依赖 Maya。

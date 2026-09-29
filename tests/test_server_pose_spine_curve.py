@@ -2,7 +2,7 @@ import math
 import unittest
 from types import SimpleNamespace
 
-from maya_pose_tool import mediapipe_pose as pose
+from pose_server import mediapipe_pose as pose
 
 
 def make_landmarks(shoulder_center, leg_positions=None, confidences=None):
@@ -73,7 +73,7 @@ def offset_from_chord(frame, name, shoulder_center, amount):
     return [point[i] - chord_point[i] for i in range(3)]
 
 
-class MayaPoseSpineCurveTests(unittest.TestCase):
+class ServerPoseSpineCurveTests(unittest.TestCase):
     def assert_linear_spine(self, frame, shoulder_center):
         for name, amount in (
             ("spine_1", 0.25),

@@ -1,11 +1,8 @@
 """Single-image MediaPipe body and hand landmark adapter.
 
-This module intentionally does not import Maya.  It can run inside Maya's
-Python interpreter when ``mediapipe`` is installed there, and it can also be
-tested or hosted by another Python process without importing any Maya module.
+This module runs in the standalone inference service without any DCC dependency.
 The adapter turns MediaPipe's 33 body landmarks and up to two sets of 21 hand
-landmarks into the 22 body and 30 finger joints expected by the Maya skeleton
-writer.
+landmarks into the 22 body and 30 finger joints consumed by the Max client.
 """
 
 from __future__ import annotations
@@ -96,8 +93,8 @@ HAND_LANDMARK_INDEX = {
     name: index for index, name in enumerate(HAND_LANDMARK_NAMES)
 }
 
-# The current Maya skeleton exposes three joints per finger. Tips are retained
-# in the landmark result but are not created as separate Maya joints.
+# The protocol exposes three joints per finger. Tips are retained separately
+# in the landmark result.
 FINGER_SEGMENT_INDEXES = {
     "thumb": ("thumb_cmc", "thumb_mcp", "thumb_ip"),
     "index": ("index_mcp", "index_pip", "index_dip"),
@@ -364,7 +361,7 @@ def _build_finger_joints(
     pose_image_landmarks,
     handedness,
 ):
-    """Convert detected hand landmarks into root-relative Maya finger joints."""
+    """Convert detected hand landmarks into root-relative finger joints."""
 
     if not hand_world_landmarks:
         return {}
@@ -549,11 +546,11 @@ def build_pose_frame_from_landmarks(
     hand_image_landmarks=None,
     handedness=None,
 ):
-    """Build the Maya pose protocol from one MediaPipe result.
+    """Build the pose protocol from one MediaPipe result.
 
     MediaPipe world coordinates are measured in meters with the hip midpoint
-    as origin.  They use a camera-style Y-down axis, so the Maya writer flips
-    Y and Z when it receives ``root_relative_mediapipe_world``.
+    as origin. They use camera-style Y-down axes; the Max client maps
+    (X, Y, Z) to (X, Z, -Y).
     """
 
     points = _raw_landmarks(world_landmarks)
@@ -565,7 +562,7 @@ def build_pose_frame_from_landmarks(
     spine_positions = _spine_positions(points, pelvis, shoulder_center)
 
     # MediaPipe does not provide the extra torso and collar joints used by the
-    # Maya hierarchy, so these joints are placed along the visible body lines.
+    # target hierarchy, so these joints are placed along the visible body lines.
     derived = {
         "pelvis": (pelvis, _min_confidence(points, "left_hip", "right_hip"), "hips"),
         "spine_1": (
@@ -687,8 +684,8 @@ def _import_mediapipe():
         from mediapipe.tasks.python import vision
     except ImportError as error:
         raise PoseLandmarkerError(
-            "当前 Maya Python 缺少 MediaPipe 图像依赖。请使用 Maya 的 mayapy "
-            "安装 mediapipe、opencv-contrib-python 和 numpy 后重启 Maya。"
+            "推理服务缺少图像依赖。请在服务的 Python 环境中安装 "
+            "mediapipe、opencv-contrib-python 和 numpy 后重启服务。"
         ) from error
     return mp, cv2, numpy, python, vision
 
@@ -734,7 +731,7 @@ def infer_single_image(
     min_hand_detection_confidence=0.5,
     min_hand_presence_confidence=0.5,
 ):
-    """Run body and hand landmarkers in IMAGE mode for one Maya pose frame."""
+    """Run body and hand landmarkers in IMAGE mode for one pose frame."""
 
     image = _as_path(image_path)
     if not image.is_file():
@@ -743,7 +740,7 @@ def infer_single_image(
     model = find_model_path(model_path)
     if model is None:
         raise PoseLandmarkerError(
-            "没有找到 {}。请下载模型文件并在 Maya 工具的“模型文件”中选择它：\n{}".format(
+            "没有找到 {}。请下载模型文件并设置 MEDIAPIPE_POSE_MODEL：\n{}".format(
                 MODEL_FILENAME, MODEL_DOWNLOAD_URL
             )
         )

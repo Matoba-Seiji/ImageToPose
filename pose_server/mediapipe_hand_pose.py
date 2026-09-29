@@ -2,8 +2,8 @@
 
 Unlike the body adapter, this module does not require Pose Landmarker or a
 body image. It selects one hand from a clear hand image, roots all 21 hand
-landmarks at the wrist, and returns the 15 joints used by the Maya hand
-writer plus the fingertip landmarks.
+landmarks at the wrist, and returns 15 finger joints plus the fingertip
+landmarks consumed by the Max client.
 """
 
 from __future__ import annotations
